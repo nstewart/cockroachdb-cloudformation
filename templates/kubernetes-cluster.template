@@ -41,6 +41,7 @@ Metadata:
         - Version
         - DiskSizeGb
         - K8sNodeCapacity
+        - K8sNodeMax
     - Label:
         default: Load Generators
       Parameters:
@@ -79,6 +80,8 @@ Metadata:
         default: Disk Size (GiB)
       K8sNodeCapacity:
         default: Cluster Size
+      K8sNodeMax:
+        default: K8s Cluster Size
       Workload:
         default: Load Generator
       QSS3BucketName:
@@ -207,6 +210,21 @@ Parameters:
     - 13
     - 14
     - 15
+
+  K8sNodeMax:
+    Default: '1'
+    Description: Initial number of K8s nodes.
+    Type: Number
+    AllowedValues:
+    - 1
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    - 10
 
   Workload:
     Default: 'None'
@@ -688,16 +706,16 @@ Resources:
     DependsOn: K8sMasterInstance
     CreationPolicy:
       ResourceSignal:
-        # Ensure at least <K8sNodeCapacity> nodes have signaled success before
+        # Ensure at least <K8sNodeMax> nodes have signaled success before
         # this resource is considered created.
-        Count: !Ref K8sNodeCapacity
+        Count: !Ref K8sNodeMax
         Timeout: PT10M
     Properties:
       # Where the EC2 instance gets deployed geographically
       AvailabilityZones:
       - !Ref AvailabilityZone
-      # Refers to the K8sNodeCapacity parameter, which specifies the number of nodes (1-20)
-      DesiredCapacity: !Ref K8sNodeCapacity
+      # Refers to the K8sNodeMax parameter, which specifies the number of nodes (1-20)
+      DesiredCapacity: !Ref K8sNodeMax
       # Refers to the LaunchConfig, which has specific config details for the EC2 instances
       LaunchConfigurationName: !Ref LaunchConfig
       # More cluster sizing
