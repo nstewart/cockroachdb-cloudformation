@@ -456,3 +456,15 @@ Outputs:
       -A -L8080:localhost:8080
       -o ProxyCommand="ssh -i \"${!SSH_KEY}\" ubuntu@${BastionHost.PublicIp} nc %h %p"
       ubuntu@${K8sStack.Outputs.MasterPrivateIp}
+  GetKubeConfigCommand:
+    Description: Run locally - SCP command to download the Kubernetes configuration
+      file for accessing the new cluster via kubectl, a Kubernetes command line tool.
+      Creates a "kubeconfig" file in the current directory. Then, you can run
+      "export KUBECONFIG=$(pwd)/kubeconfig" to ensure kubectl uses this configuration file.
+      About kubectl - https://kubernetes.io/docs/user-guide/prereqs/
+    Value: !Sub >-
+      SSH_KEY="path/to/${KeyName}.pem";
+      scp
+      -i $SSH_KEY
+      -o ProxyCommand="ssh -i \"${!SSH_KEY}\" ubuntu@${BastionHost.PublicIp} nc %h %p"
+      ubuntu@${K8sStack.Outputs.MasterPrivateIp}:~/kubeconfig ./kubeconfig
